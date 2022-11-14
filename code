@@ -1,0 +1,43 @@
+import numpy as np
+from sklearn.datasets import load_iris
+from sklearn.linear_model import Perceptron
+import tensorflow as tf
+from tensorflow import keras
+import pandas as pd
+import matplotlib.pyplot as plt
+
+#upload the data
+fashion_mnist = keras.datasets.fashion_mnist
+(X_train_full,y_train_full), (X_test, y_test) = fashion_mnist.load_data()
+
+#split data
+X_valid, X_train = X_train_full[:5000]/255.0, X_train_full[5000:]/255.0
+y_valid, y_train = y_train_full[:5000], y_train_full[5000:]
+
+class_names = ["T-shirt/top", 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 
+'Sneaker', 'Bag', 'Ankle Boot']
+
+#neural network model with MLP
+
+model = keras.models.Sequential([
+    keras.layers.Flatten(input_shape=[28,28]),
+    keras.layers.Dense(300,activation="relu"),
+    keras.layers.Dense(100,activation="relu"),
+    keras.layers.Dense(10,activation="softmax")
+])
+
+model.summary()
+
+#Compiling the layers of the model
+model.compile(loss="sparse_categorical_crossentropy",
+                optimizer="sgd",
+                metrics=['accuracy'])
+                
+#training the model
+history = model.fit(X_train, y_train, epochs=100, validation_data=(X_valid,y_valid))
+
+#visualizing the training
+pd.DataFrame(history.history).plot(figsize=(8,5))
+plt.grid(True)
+plt.gca().set_ylim(0,1) #set the vertical range to [0,-1]
+plt.show()
